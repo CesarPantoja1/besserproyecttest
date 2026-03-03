@@ -1,0 +1,27 @@
+services:
+  # Backend API (Free tier - 750 hours/month, spins down after 15 min idle)
+  - type: web
+    name: besserproyecttest-backend-ec8a7b
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main_api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.16
+      - key: PORT
+        value: 8000
+
+  # Frontend (Free static site)
+  - type: web
+    name: besserproyecttest-frontend-ec8a7b
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/build
+    envVars:
+      - key: VITE_API_URL
+        value: https://besserproyecttest-backend-ec8a7b.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
